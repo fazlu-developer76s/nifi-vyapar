@@ -1,23 +1,17 @@
+import e from "express";
 import { decryptData, encryptData } from "../lib/encrypt.js";
 import { errorResponse, successResponse } from "../lib/reply.js";
 import { Package } from "../models/Package.js";
 import User from "../models/User.js";
 import { Usermember } from "../models/Usermanagement.js";
 import { UserRole } from "../models/UserRole.js";
+import mongoose from "mongoose";
 
 const createUserMember = async (req, res) => {
   try {
+    
     const { name, email, mobile, role, status = true } = req.decryptedBody;
-
     const user = req.user;
-    console.log(user, "user");
-
-    // if (!name || !email || !mobile || !role) {
-    //   return res
-    //     .status(400)
-    //     .json(errorResponse(400, "Missing required fields", false));
-    // }
-
     if (status !== true && status !== false) {
       return res
         .status(400)
@@ -29,41 +23,24 @@ const createUserMember = async (req, res) => {
           )
         );
     }
-
-   
     const encryptedTrue = encryptData(JSON.stringify(true))?.encryptedData;
-
- 
-
     const existingRole = await UserRole.findOne({
       _id: role,
-       status: encryptedTrue,
+      status: encryptedTrue,
     });
-
-    console.log(existingRole, "ghgggg");
     if (!existingRole) {
       return res
         .status(400)
         .json(errorResponse(400, "Invalid role or deactive", false));
     }
-
     const encryptedName = encryptData(name)?.encryptedData;
     const encryptedEmail = encryptData(email)?.encryptedData;
     const encryptedMobile = encryptData(mobile)?.encryptedData;
     const encryptedStatus = encryptData(JSON.stringify(status))?.encryptedData;
-
-    const existingUserInUser = await User.findOne({ email: encryptedEmail });
-    if (existingUserInUser) {
-      return res
-        .status(400)
-        .json(errorResponse(400, "Email already in use inside User", false));
-    }
-
-  const existingUserMember = await Usermember.findOne({
-    email: encryptedEmail,
-    userID: { $ne: user },
-  });
-
+    const existingUserMember = await Usermember.findOne({
+      email: encryptedEmail,
+      userId: user
+    });
     if (existingUserMember) {
       return res
         .status(400)
@@ -71,7 +48,6 @@ const createUserMember = async (req, res) => {
     }
 
     let existingUser = await User.findOne({ userId: user });
-
     if (!existingUser) {
       existingUser = new User({
         _id: user.id,
@@ -91,7 +67,6 @@ const createUserMember = async (req, res) => {
       status: encryptedStatus,
       userId: user,
     });
-
     await newUserMember.save();
 
     if (existingUser.memberDetails) {
@@ -99,9 +74,7 @@ const createUserMember = async (req, res) => {
     } else {
       existingUser.memberDetails = [{ member_Id: newUserMember._id }];
     }
-
     await existingUser.save();
-
     return res
       .status(201)
       .json(
@@ -121,111 +94,16 @@ const createUserMember = async (req, res) => {
   }
 };
 
-// const updateUserMember = async (req, res) => {
-//   try {
-//     const { id } = req.params;
-
-//     const { name, email, mobile, role, status = true } = req.decryptedBody;
-
-//     if (!id) {
-//       return res
-//         .status(400)
-//         .json(errorResponse(400, "Member ID is required", false));
-//     }
-
-//     const member = await Usermember.findById(id);
-//     if (!member) {
-//       return res
-//         .status(404)
-//         .json(errorResponse(404, "User member not found", false));
-//     }
-
-//     if (name) {
-//       member.name = encryptData(JSON.stringify(name)).encryptedData;
-//     }
-
-//     if (email) {
-//       const encryptedEmail = encryptData(JSON.stringify(email)).encryptedData;
-
-//       const existingUserInUser = await User.findOne({
-//         email: encryptedEmail,
-//         _id: { $ne: member._id },
-//       });
-//       if (existingUserInUser) {
-//         return res
-//           .status(400)
-//           .json(errorResponse(400, "Email already in use inside User", false));
-//       }
-
-//       const existingUserMember = await Usermember.findOne({
-//         email: encryptedEmail,
-//         _id: { $ne: member._id },
-//       });
-//       if (existingUserMember) {
-//         return res
-//           .status(400)
-//           .json(errorResponse(400, "Email already in use", false));
-//       }
-
-//       member.email = encryptedEmail;
-//     }
-
-//     if (mobile) {
-//       member.mobile = encryptData(JSON.stringify(mobile)).encryptedData;
-//     }
-
-//     if (typeof status !== "undefined") {
-//       if (status !== true && status !== false) {
-//         return res
-//           .status(400)
-//           .json(
-//             errorResponse(400, "Invalid status. Use true or false.", false)
-//           );
-//       }
-//       member.status = encryptData(JSON.stringify(status)).encryptedData;
-//     }
-
-//     if (role) {
-//       const encryptedRole = encryptData(JSON.stringify(role)).encryptedData;
-//         const existingRole = await UserRole.findOne({
-//         _id: role,
-//         status: encryptedTrue,
-//       });
-//       if (!existingRole) {
-//         return res
-//           .status(400)
-//           .json(errorResponse(400, "Invalid role or deactive", false));
-//       }
-
-//       member.role = existingRole._id;
-//     }
-
-//     await member.save();
-
-//     return res
-//       .status(200)
-//       .json(
-//         successResponse(200, member, "Member updated successfully", "", true)
-//       );
-//   } catch (error) {
-//     console.error("Error in updateUserMember:", error);
-//     return res
-//       .status(500)
-//       .json(errorResponse(500, "Something went wrong.", false));
-//   }
-// };
-
 const updateUserMember = async (req, res) => {
   try {
+
     const { id } = req.params;
     const { name, email, mobile, role, status } = req.decryptedBody;
-
     if (!id) {
       return res
         .status(400)
         .json(errorResponse(400, "Member ID is required", false));
     }
-
     const member = await Usermember.findById(id);
     if (!member) {
       return res
@@ -233,58 +111,38 @@ const updateUserMember = async (req, res) => {
         .json(errorResponse(404, "User member not found", false));
     }
 
-    // Update name if provided
     if (name) {
       member.name = encryptData(name).encryptedData;
     }
-
-    // Update email if provided, check for duplicates
-    if (email) {
-      const encryptedEmail = encryptData(email).encryptedData;
-
-      const existingUserInUser = await User.findOne({
-        email: encryptedEmail,
-        _id: { $ne: member._id },
-      });
-      if (existingUserInUser) {
-        return res
-          .status(400)
-          .json(errorResponse(400, "Email already in use inside User", false));
-      }
-
+    const encryptedEmail = encryptData(email).encryptedData;
       const existingUserMember = await Usermember.findOne({
         email: encryptedEmail,
-        _id: { $ne: member._id },
-      });
-      if (existingUserMember) {
-        return res
-          .status(400)
-          .json(errorResponse(400, "Email already in use", false));
-      }
+        userId: req.user,
+        _id: { $ne: id } // Exclude the current member being updated
 
-      member.email = encryptedEmail;
+      });
+    if (existingUserMember) {
+      return res
+        .status(400)
+        .json(errorResponse(400, "Email already in use", false));
     }
 
-    // Update mobile if provided
+    member.email = encryptedEmail;
     if (mobile) {
       member.mobile = encryptData(mobile).encryptedData;
     }
-
-    // Update status if provided and valid
     if (typeof status !== "undefined") {
       if (status !== true && status !== false) {
         return res
           .status(400)
-          .json(errorResponse(400, "Invalid status. Use true or false.", false));
+          .json(
+            errorResponse(400, "Invalid status. Use true or false.", false)
+          );
       }
       member.status = encryptData(JSON.stringify(status)).encryptedData;
     }
-
-    // Update role if provided
     if (role) {
       const encryptedTrue = encryptData(JSON.stringify(true)).encryptedData;
-
-      // role is an ID, so find by _id and active status
       const existingRole = await UserRole.findOne({
         _id: role,
         status: encryptedTrue,
@@ -298,22 +156,19 @@ const updateUserMember = async (req, res) => {
 
       member.role = existingRole._id;
     }
-
     await member.save();
-
     return res
       .status(200)
       .json(
         successResponse(200, member, "Member updated successfully", "", true)
       );
   } catch (error) {
-    console.error( error);
+    console.error(error);
     return res
       .status(500)
       .json(errorResponse(500, "Something went wrong.", false));
   }
 };
-
 
 const deleteUserMember = async (req, res) => {
   try {
@@ -425,8 +280,8 @@ const getAllUserMembers = async (req, res) => {
       const decryptedRole = member.role
         ? {
             _id: member.role._id,
-          UserRolename: decryptData(member.role.UserRolename),
-status: JSON.parse(decryptData(member.role.status)),
+            UserRolename: decryptData(member.role.UserRolename),
+            status: JSON.parse(decryptData(member.role.status)),
             createdAt: member.role.createdAt,
             updatedAt: member.role.updatedAt,
           }
@@ -434,9 +289,9 @@ status: JSON.parse(decryptData(member.role.status)),
 
       return {
         _id: member._id,
-        name: (decryptData(member.name)),
-        email: (decryptData(member.email)),
-        mobile: (decryptData(member.mobile)),
+        name: decryptData(member.name),
+        email: decryptData(member.email),
+        mobile: decryptData(member.mobile),
         status: JSON.parse(decryptData(member.status)),
         role: decryptedRole,
         createdAt: member.createdAt,
