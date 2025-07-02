@@ -61,7 +61,9 @@ const createUserMember = async (req, res) => {
 
     const existingUserMember = await Usermember.findOne({
       email: encryptedEmail,
+      userID: { $ne: user.id },
     });
+
     if (existingUserMember) {
       return res
         .status(400)

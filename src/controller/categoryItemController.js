@@ -322,8 +322,10 @@ export const updateCategoryItem = async (req, res) => {
 
 export const getAllCategoryItems = async (req, res) => {
   try {
+    
     // Fetch all category items from the database
-    const items = await CategoryItem.find().sort({ createdAt: -1 }); // Sort by createdAt in descending order
+    const user = req.user;
+    const items = await CategoryItem.find({userID:user.id}).sort({ createdAt: -1 }); // Sort by createdAt in descending order
 
     // Check if items exist
     if (items.length === 0) {
