@@ -87,6 +87,18 @@ export const updateAdmCompany = async (req, res) => {
         .json(errorResponse(404, "Company not found", false));
     }
 
+  const exitcompany = await AdmCompany.findOne({
+      Companyemail: encryptedEmail,
+      _id: { $ne: id },
+      userID:  user ,
+    });
+    if (exitcompany) {
+      return res
+        .status(400)
+        .json(errorResponse(400, "Company email already exists", false));
+    }
+
+
     if (CompanyName) {
       const result = encryptData(CompanyName);
       if (result?.encryptedData) {
