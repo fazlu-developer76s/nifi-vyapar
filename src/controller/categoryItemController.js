@@ -190,9 +190,8 @@ import mongoose from "mongoose";
 export const createCategoryItem = async (req, res) => {
   try {
     const user = req.user;
-    console.log(user , 'asdfasfd')
-   
-    
+    console.log(user, "asdfasfd");
+
     // const { body } = req.body;
     const { name, status } = req.decryptedBody;
 
@@ -204,7 +203,7 @@ export const createCategoryItem = async (req, res) => {
     }
 
     // Check for duplicate category item name
-    const items = await CategoryItem.find({userId:user});
+    const items = await CategoryItem.find({ userId: user });
     const isDuplicate = items.some((item) => {
       const decryptedName = decryptData(item.name);
       return decryptedName.trim().toLowerCase() === name.trim().toLowerCase();
@@ -239,13 +238,13 @@ export const createCategoryItem = async (req, res) => {
     console.error("Create CategoryItem Error:", error);
     return res
       .status(500)
-      .json(errorResponse(500, "something went wrong", false, ));
+      .json(errorResponse(500, "something went wrong", false));
   }
 };
 
 export const updateCategoryItem = async (req, res) => {
   try {
-   const user = req.user
+    const user = req.user;
     const { id } = req.params;
     // const { body } = req.body;
     const { name, status } = req.decryptedBody;
@@ -263,7 +262,7 @@ export const updateCategoryItem = async (req, res) => {
     }
 
     if (name) {
-      const items = await CategoryItem.find({ _id: { $ne: id },userId:user }); // Exclude the current item
+      const items = await CategoryItem.find({ _id: { $ne: id }, userId: user }); // Exclude the current item
       const isDuplicate = items.some((item) => {
         const decryptedName = decryptData(item.name);
         return decryptedName.trim().toLowerCase() === name.trim().toLowerCase();
@@ -279,7 +278,6 @@ export const updateCategoryItem = async (req, res) => {
     const updateData = {
       ...(name && { name: encryptData(name)?.encryptedData }),
       ...(status && { status }),
-      
     };
 
     const updated = await CategoryItem.findByIdAndUpdate(id, updateData, {
@@ -298,7 +296,6 @@ export const updateCategoryItem = async (req, res) => {
       status: updated.status,
       createdAt: updated.createdAt,
       updatedAt: updated.updatedAt,
-      
     };
 
     return res
@@ -322,10 +319,12 @@ export const updateCategoryItem = async (req, res) => {
 
 export const getAllCategoryItems = async (req, res) => {
   try {
-    
-    // Fetch all category items from the database
     const user = req.user;
-    const items = await CategoryItem.find({userID:user.id}).sort({ createdAt: -1 }); // Sort by createdAt in descending order
+    // Fetch all category items from the database
+    const items = await CategoryItem.find({
+      userId: user,
+    }).sort({ createdAt: -1 });
+   
 
     // Check if items exist
     if (items.length === 0) {
@@ -364,7 +363,6 @@ export const getAllCategoryItems = async (req, res) => {
 export const getOurAllCategoryItems = async (req, res) => {
   try {
     const user = req.user;
-   
 
     const items = await CategoryItem.find({ userId: user }).sort({
       createdAt: -1,
@@ -382,7 +380,6 @@ export const getOurAllCategoryItems = async (req, res) => {
       status: item.status,
       createdAt: item.createdAt,
       updatedAt: item.updatedAt,
-      
     }));
 
     return res
@@ -449,9 +446,9 @@ export const getCategoryItemById = async (req, res) => {
       );
   } catch (error) {
     return res
-    .status(500)
-    .json(errorResponse(500, "something went wrong ", false));
-}
+      .status(500)
+      .json(errorResponse(500, "something went wrong ", false));
+  }
 };
 
 // export const deleteCategoryItem = async (req, res) => {

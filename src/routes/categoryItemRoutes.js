@@ -19,7 +19,7 @@ CategoryItemrouter.post(
   authorize,
   createCategoryItem
 );
-CategoryItemrouter.get("/items/getAll", getAllCategoryItems);
+CategoryItemrouter.get("/items/getAll",authorize, getAllCategoryItems);
 CategoryItemrouter.get("/items/get-our", authorize, getOurAllCategoryItems);
 CategoryItemrouter.get("/category-item/:id", getCategoryItemById);
 CategoryItemrouter.put(
