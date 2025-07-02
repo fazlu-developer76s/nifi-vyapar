@@ -59,10 +59,10 @@ const createUserMember = async (req, res) => {
         .json(errorResponse(400, "Email already in use inside User", false));
     }
 
-    const existingUserMember = await Usermember.findOne({
-      email: encryptedEmail,
-      userID: { $ne: user.id },
-    });
+  const existingUserMember = await Usermember.findOne({
+    email: encryptedEmail,
+    userID: { $ne: user },
+  });
 
     if (existingUserMember) {
       return res

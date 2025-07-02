@@ -38,7 +38,7 @@ export const createAdmCompany = async (req, res) => {
 
     const existingCompany = await AdmCompany.findOne({
       Companyemail: encryptedEmail,
-      userID: { $ne: user.id },
+      userID: { $ne: user },
     });
     if (existingCompany) {
       return res
