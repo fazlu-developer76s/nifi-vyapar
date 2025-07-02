@@ -104,7 +104,7 @@ const productSchema = new mongoose.Schema(
       conversionRate: { type: String, default: null },
     },
 
-    itemImage: { type: String },
+    itemImage: [{ type: String }],
     category: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "CategoryItem",
@@ -113,7 +113,7 @@ const productSchema = new mongoose.Schema(
     Godownid: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Godown",
-      required: true,
+    
     },
 
     itemCode: { type: String},

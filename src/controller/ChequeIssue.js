@@ -911,10 +911,14 @@ export const UpdateIssuedCheque = async (req, res) => {
         .json(errorResponse(404, "Issued cheque not found", false));
     }
 
-    if (issuedCheque.status === "cleared") {
-      return res
-        .status(400)
-        .json(errorResponse(400, "Cheque already cleared", false));
+   if (["cleared", "Rejected"].includes(issuedCheque.status)) {
+      return res.status(400).json(
+        errorResponse(
+          400,
+          `Cheque already ${issuedCheque.status.toLowerCase()}`,
+          false
+        )
+      );
     }
 
     issuedCheque.status = status;

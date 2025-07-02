@@ -39,6 +39,8 @@ export const createRolePermission = async (req, res) => {
 };
 
 
+
+
 export const getAllRolePermissions = async (req, res) => {
   try {
     const permissions = await UserPermissionRole.find()

@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const stockLogSchema = new mongoose.Schema({
   type: {
     type: String,
-    enum: ["Add", "Reduce", "Adjust", "Opening","sale","purchasePrice",],
+    enum: ["Add", "Reduce", "Adjust", "Opening","sale","purchasePrice","purchase"],
     required: true,
   },
   itemId: {
@@ -41,7 +41,7 @@ userId: {
       {
         operationType: {
           type: String,
-          enum: ["Add", "Reduce", "Adjust", "Opening","salePrice","purchasePrice"],
+          enum: ["Add", "Reduce", "Adjust", "Opening","salePrice","purchasePrice","purchase"],
           required: true,
         },
         oldValues: {

@@ -241,12 +241,15 @@ export const getTransactionById = async (req, res) => {
 
 export const getAllexportTransactions = async (req, res) => {
   try {
+ const { actionBy } = req.params;
+    console.log(actionBy)
     const user = req.user;
     const { date, fromDate, toDate, type, bankId, format } = req.query;
 
     const filter = { userId: user };
     if (type) filter.type = type;
     if (bankId) filter.bankId = bankId;
+if (actionBy) filter.actionBy = actionBy;
 
     if (fromDate || toDate) {
       filter.createdAt = {};
@@ -480,6 +483,7 @@ export const createTransaction = async (req, res) => {
 
 export const getAllTransactions = async (req, res) => {
   try {
+      const { actionBy } = req.params;
     const user = req.user;
     const { date, type, bankId } = req.query;
 
@@ -488,6 +492,9 @@ export const getAllTransactions = async (req, res) => {
     if (type) filter.type = type;
 
     if (bankId) filter.bankId = bankId;
+    
+    if (actionBy) filter.actionBy = actionBy;
+
 
     if (date) {
       const parsedDate = new Date(date);

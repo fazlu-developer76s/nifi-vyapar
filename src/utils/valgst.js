@@ -227,6 +227,19 @@ export const validateAdmCompany = joi.object({
       "string.email": "Please provide a valid email address",
       "string.empty": "Companyemail cannot be empty",
     }),
+    address: joi.string() 
+    .optional()
+    .allow(null, '')  
+    .messages({
+      "string.base": "Address must be a string",
+    }),
+    gstIn: joi.string() 
+    .optional() 
+    .allow(null, '')
+    .messages({
+      "string.base": "GSTIN must be a string",
+      "string.empty": "GSTIN cannot be empty",
+    }),
 
  status: joi.string()
  .default("true")
@@ -266,7 +279,19 @@ export const validateUpdateAdmCompany = joi.object({
       "string.email": "Please provide a valid email address",
       "string.empty": "Companyemail cannot be empty",
     }),
-
+     address: joi.string() 
+    .optional()
+    .allow(null, '')  
+    .messages({
+      "string.base": "Address must be a string",
+    }),
+    gstIn: joi.string() 
+    .optional() 
+    .allow(null, '')
+    .messages({
+      "string.base": "GSTIN must be a string",
+      "string.empty": "GSTIN cannot be empty",
+    }),
   status: joi.string()
    .optional()
    .messages({
@@ -811,12 +836,17 @@ export const productValidationSchema = joi.object({
     return value;
   }),
 
-  Godownid: joi.string().required().custom((value, helpers) => {
+Godownid: joi.alternatives().try(
+  joi.string().valid(null, "").optional(),
+  joi.string().custom((value, helpers) => {
     if (!mongoose.Types.ObjectId.isValid(value)) {
       return helpers.message("Invalid Godownid ObjectId");
     }
     return value;
-  }),
+  })
+).optional(),
+
+
 
   itemCode: joi.string().allow(null).optional(),
 
@@ -2098,3 +2128,172 @@ export const createUpdateUserRoleSchema = joi.object({
     "boolean.base": "Invalid status. Only true or false are allowed.",
   }),
 })
+
+
+export const valiadteSupplier = joi.object({
+  supplierName: joi.string()
+    .required()
+    .messages({
+      "any.required": "Supplier name is required",
+      "string.empty": "Supplier name cannot be empty",
+    }),
+      panNo: joi.string()
+    .pattern(/^[A-Z]{5}[0-9]{4}[A-Z]$/)
+    .optional()
+    .allow('', null)
+    .messages({
+      "string.pattern.base": "PAN number must be in the format: 5 letters, 4 digits, and 1 letter (e.g., ABCDE1234F)",
+    }),
+status: joi.string()
+  .valid('active', 'inactive')
+  .empty('') // allow empty string to be treated as undefined
+  .default('active')
+  .messages({
+    'string.empty': 'Status cannot be empty',
+    'any.only': 'Status must be either active or inactive',
+  }),
+
+
+  gstIn: joi.string().optional().allow('', null),
+  
+  phoneNumber: joi.string().optional().allow('', null),
+  
+  gstType: joi.string()
+    .valid(
+      "Regular",
+      "Registered Business - Regular",
+      "Unregistered",
+      "Composition",
+      "Consumer",
+      "Overseas",
+      "SEZ",
+      "Deemed Export"
+    )
+     .allow('', null)
+  .optional()
+    .required()
+    .messages({
+      "any.required": "GST Type is required",
+      "string.empty": "GST Type cannot be empty",
+      "any.only": "Invalid GST Type selected",
+    }),
+
+  emailId: joi.string().email().optional().allow('', null),
+
+  address: addressSchema.optional(),
+
+
+
+});
+
+
+const objectIdValidator11 = (value, helpers) => {
+  if (!mongoose.Types.ObjectId.isValid(value)) {
+    return helpers.error("any.invalid");
+  }
+  return value;
+};
+
+export const productVariantSchema = joi.object({
+  productId: joi.string().custom(objectIdValidator11, "ObjectId Validation").required().messages({
+    "string.base": "Product ID must be a string",
+    "any.invalid": "Product ID must be a valid ObjectId",
+    "any.required": "Product ID is required",
+  }),
+ status: joi.string()
+    .valid("active", "inactive")
+    .optional()
+    .messages({
+      "any.only": "Status must be either 'active' or 'inactive'",
+    }),
+  sku: joi.string().required().messages({
+    "string.base": "SKU must be a string",
+    "string.empty": "SKU is required",
+    "any.required": "SKU is required",
+  }),
+
+  barcode: joi.string().required().messages({
+    "string.base": "Barcode must be a string",
+    "string.empty": "Barcode is required",
+    "any.required": "Barcode is required",
+  }),
+
+  quantity: joi.string().required().messages({
+    "string.base": "Quantity must be a string",
+    "string.empty": "Quantity is required",
+    "any.required": "Quantity is required",
+  }),
+
+  saleprice: joi.string().required().messages({
+    "string.base": "Sale price must be a string",
+    "string.empty": "Sale price is required",
+    "any.required": "Sale price is required",
+  }),
+
+  purchaseprice: joi.string().required().messages({
+    "string.base": "Purchase price must be a string",
+    "string.empty": "Purchase price is required",
+    "any.required": "Purchase price is required",
+  }),
+});
+
+export const updateproductVariantSchema = joi.object({
+  productId: joi.string().custom(objectIdValidator11, "ObjectId Validation").required().messages({
+    "string.base": "Product ID must be a string",
+    "any.invalid": "Product ID must be a valid ObjectId",
+    "any.required": "Product ID is required",
+  }),
+ status: joi.string()
+    .valid("active", "inactive")
+    .optional()
+    .messages({
+      "any.only": "Status must be either 'active' or 'inactive'",
+    }),
+  sku: joi.string().optional().allow('', null).messages({
+    "string.base": "SKU must be a string",
+    "string.empty": "SKU is required",
+    "any.required": "SKU is required",
+  }),
+
+  barcode: joi.string().optional().allow('', null).messages({
+    "string.base": "Barcode must be a string",
+    "string.empty": "Barcode is required",
+    "any.required": "Barcode is required",
+  }),
+
+  quantity: joi.string().optional().allow('', null).messages({
+    "string.base": "Quantity must be a string",
+    "string.empty": "Quantity is required",
+    "any.required": "Quantity is required",
+  }),
+
+  saleprice: joi.string().optional().allow('', null).messages({
+    "string.base": "Sale price must be a string",
+    "string.empty": "Sale price is required",
+    "any.required": "Sale price is required",
+  }),
+
+  purchaseprice: joi.string().optional().allow('', null).messages({
+    "string.base": "Purchase price must be a string",
+    "string.empty": "Purchase price is required",
+    "any.required": "Purchase price is required",
+  }),
+});
+
+export const createHSNSchema = joi.object({
+  HSNcode: joi.string().trim().required().messages({
+    "any.required": "HSN code is required",
+    "string.empty": "HSN code cannot be empty",
+  }),
+  description: joi.string().required().messages({
+    "any.required": "Description is required",
+    "string.empty": "Description cannot be empty",
+  }),
+  status: joi.string().valid("active", "inactive").optional(),
+});
+
+export const updateHSNSchema = joi.object({
+  HSNcode: joi.string().trim().allow(null, "").optional(),
+  description: joi.string().allow(null, "").optional(),
+  status: joi.string().valid("active", "inactive").optional(),
+});

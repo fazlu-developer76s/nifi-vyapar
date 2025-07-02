@@ -13,13 +13,12 @@ import stocklogSchema from "../models/stocklogSchema.js";
 //       userId: createdBy,
 //       data,
 //     });
-    
+
 //     console.log('Stock event logged successfully:', stockLog);
 //   } catch (err) {
 //     console.error('Stock event logging failed:', err.message);
 //   }
 // };
-
 
 // export const logStockEvent = async ({
 //   itemId,
@@ -71,7 +70,6 @@ import stocklogSchema from "../models/stocklogSchema.js";
 //   }
 // };
 
-
 export const logStockEvent = async ({
   itemId,
   godownId,
@@ -87,23 +85,26 @@ export const logStockEvent = async ({
   reason = "",
 }) => {
   try {
-    const editEntry = oldValues && newValues
-      ? [{
-          operationType: type,
-          oldValues: {
-            quantity: oldValues.quantity,
-            pricePerUnit: oldValues.pricePerUnit,
-          },
-          newValues: {
-            quantity: newValues.quantity,
-            pricePerUnit: newValues.pricePerUnit,
-          },
-          modifiedBy: createdBy,
-          modifiedAt: new Date(),
-          reason: reason || `${type} stock`,
-        }]
-      : [];
- 
+    const editEntry =
+      oldValues && newValues
+        ? [
+            {
+              operationType: type,
+              oldValues: {
+                quantity: oldValues.quantity,
+                pricePerUnit: oldValues.pricePerUnit,
+              },
+              newValues: {
+                quantity: newValues.quantity,
+                pricePerUnit: newValues.pricePerUnit,
+              },
+              modifiedBy: createdBy,
+              modifiedAt: new Date(),
+              reason: reason || `${type} stock`,
+            },
+          ]
+        : [];
+
     const stockLog = await stocklogSchema.create({
       itemId,
       godownId,
@@ -116,12 +117,9 @@ export const logStockEvent = async ({
       data,
       editHistory: editEntry,
     });
- 
-    console.log('Stock event logged successfully:', stockLog);
+
+    console.log("Stock event logged successfully:", stockLog);
   } catch (err) {
-    console.error('Stock event logging failed:', err.message);
+    console.error("Stock event logging failed:", err.message);
   }
 };
-
-
-

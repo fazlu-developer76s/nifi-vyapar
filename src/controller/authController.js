@@ -447,3 +447,108 @@ export const verifyOtpAndUpdate = async (req, res) => {
       .json(encryptData(errorResponse(500, error.message, false)));
   }
 };
+
+export const facebookAuth = async (req, res) => {
+  try {
+    const { code } = req.query;
+
+    if (!code) {
+      return res.status(400).json(errorResponse(400, "Code is required", false));
+    }
+
+    // Step 1: Exchange code for access token
+    const tokenResponse = await axios.get("https://graph.facebook.com/v18.0/oauth/access_token", {
+      params: {
+        client_id: process.env.FACEBOOK_APP_ID,
+        client_secret: process.env.FACEBOOK_APP_SECRET,
+        redirect_uri: process.env.FACEBOOK_REDIRECT_URI, // same as configured in Facebook App
+        code,
+      },
+    });
+
+    const access_token = tokenResponse.data.access_token;
+
+    // Step 2: Get user info
+    const userInfo = await axios.get("https://graph.facebook.com/me", {
+      params: {
+        fields: "id,name,email,picture",
+        access_token,
+      },
+    });
+
+    const { email } = userInfo.data;
+
+    if (!email) {
+      return res.status(400).json(errorResponse(400, "Email permission is required", false));
+    }
+
+    // Step 3: Encrypt & store user
+    const encryptedEmail = encryptData(email)?.encryptedData;
+    let user = await User.findOne({ email: encryptedEmail });
+
+    if (!user) {
+      user = await User.create({ email: encryptedEmail });
+    }
+
+    // Step 4: Generate and save token
+    const jwtToken = jwt.sign(
+      { id: user._id, email: user.email },
+      process.env.TOKEN_SECRET_KEY,
+      { expiresIn: "2d" }
+    );
+    const base64Token = Buffer.from(jwtToken).toString("base64");
+    const encryptedToken = encryptData(base64Token).encryptedData;
+
+    await UserToken.create({
+      token: encryptedToken,
+      user_id: user._id,
+      status: "active",
+    });
+
+    res.status(200).json(
+      successResponse(200, "Successfully logged in via Facebook", encryptedToken, true, user)
+    );
+  } catch (err) {
+    console.error("Facebook Auth Error:", err.response?.data || err.message);
+    res.status(500).json(errorResponse(500, err.message, "Something went wrong", false));
+  }
+};
+
+
+export const editUserData = async (req, res) => {
+  try {
+    
+    const user = req.user;
+const { body } = req.body;
+
+    const decryptedBody = decryptData(body);
+    const parsedBody = JSON.parse(decryptedBody);
+    const { name, mobile,  avatar,address } = parsedBody;
+
+    const findUser = await User.findById(user?._id);
+    console.log(findUser)
+    if (!findUser) {
+      return res.status(404).json(errorResponse(404, "", false, "User not found"));
+    }
+
+    const updateUserDetails = {};
+
+    // Update other fields immediately
+    if (name) updateUserDetails.name = encryptData(JSON.stringify(name))?.encryptedData;
+    if (mobile) updateUserDetails.mobile = encryptData(JSON.stringify(mobile))?.encryptedData;
+    if (avatar) updateUserDetails.avatar = encryptData(JSON.stringify(avatar))?.encryptedData;
+   if(address) updateUserDetails.address=encryptData(JSON.stringify(address))?.encryptedData;
+   
+
+    const updatedUser = await User.findByIdAndUpdate(user?.id, { $set: updateUserDetails }, { new: true });
+
+    if (!updatedUser) {
+      return res.status(404).json(errorResponse(404, "", false, "Failed to update user data"));
+    }
+    return res.status(200).json(successResponse(200, "User data updated successfully", true, updatedUser));
+
+  } catch (error) {
+    console.log(error)
+    return res?.status(500).json(errorResponse(500, error.message, false, "Something went wrong"));
+  }
+};

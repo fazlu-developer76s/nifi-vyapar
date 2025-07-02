@@ -254,7 +254,10 @@ export const createProduct = async (req, res) => {
       userId: user,
       itemName: safeEncrypt(itemName),
       itemHSN: safeEncrypt(itemHSN),
-      itemImage: safeEncrypt(itemImage),
+      // itemImage: safeEncrypt(itemImage),
+       itemImage: Array.isArray(itemImage)
+        ? itemImage.map((img) => encryptData(img)?.encryptedData)
+        : [],
       category: categoryDoc._id,
       Godownid: godownDoc._id,
       itemCode,
@@ -583,7 +586,10 @@ export const updateProduct = async (req, res) => {
     // Update product fields
     product.itemName = safeEncrypt(itemName);
     product.itemHSN = safeEncrypt(itemHSN);
-    product.itemImage = safeEncrypt(itemImage);
+    // product.itemImage = safeEncrypt(itemImage);
+      product.itemImage = Array.isArray(itemImage)
+      ? itemImage.map((img) => encryptData(img)?.encryptedData)
+      : [];
     product.category = categoryDoc._id;
     product.Godownid = godownDoc._id;
     product.itemCode = itemCode;
@@ -791,7 +797,10 @@ export const getOurAllProductItems = async (req, res) => {
         _id: product._id,
         itemName: product.itemName ? decryptData(product.itemName) : null,
         itemHSN: product.itemHSN ? decryptData(product.itemHSN) : null,
-        itemImage: product.itemImage ? decryptData(product.itemImage) : null,
+        // itemImage: product.itemImage ? decryptData(product.itemImage) : null,
+        itemImage: Array.isArray(product.itemImage)
+            ? product.itemImage.map((img) => decryptData(img))
+            : [],
         category: product.category
           ? {
               _id: product.category._id,

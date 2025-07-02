@@ -11,6 +11,14 @@ const AdmcompanySchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
+    address:{type:String},
+    gstIn: { type: String },
+       members: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Usermember",
+      },
+    ],
   },
   { timestamps: true }
 );

@@ -5,16 +5,19 @@ import {
   getAllHSN,
   deleteHSN
 } from '../controller/HSNController.js';
+import { AllvalidateSchema } from '../middlewares/userValidation.js';
+import { createHSNSchema, updateHSNSchema } from '../utils/valgst.js';
+import { authorize } from '../middlewares/auth.js';
 
 
 
-const router = express.Router();
+const Hsnrouter = express.Router();
 
 
 
-router.post('/Hsn/create',  createHSN);
-router.put('/update/:id',  updateHSN);
-router.get('/all',  getAllHSN);
-router.delete('/delete/:id', deleteHSN);
+Hsnrouter.post('/Hsn',authorize, AllvalidateSchema(createHSNSchema), createHSN);
+Hsnrouter.put('/Hsn/:id',authorize, AllvalidateSchema(updateHSNSchema), updateHSN);
+Hsnrouter.get('/AllHsn',authorize,  getAllHSN);
+Hsnrouter.delete('/deleteHsn/:id', deleteHSN);
 
-export default router;  
+export default Hsnrouter;  

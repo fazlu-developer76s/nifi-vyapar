@@ -60,6 +60,6 @@ export const sendemail = async (email, otp) => {
     console.log("Email sent: %s", info.messageId);
     return info;
   } catch (error) {
-    console.error("Email send failed:", error);
+    console.error( error);
   }
 };

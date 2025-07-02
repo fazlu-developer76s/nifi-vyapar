@@ -68,16 +68,18 @@ export const createGodown = async (req, res) => {
       GodownType,
     } = req.decryptedBody;
 
-  
     const encryptedName = encryptData(GodownName)?.encryptedData;
 
- 
-    const existingGodown = await Godown.findOne({ GodownName: encryptedName ,userId: user._id});
+    const existingGodown = await Godown.findOne({
+      GodownName: encryptedName,
+      userId: user._id,
+    });
     if (existingGodown) {
-      return res.status(400).json(errorResponse( 400,"Godown Name must be unique",false) );
+      return res
+        .status(400)
+        .json(errorResponse(400, "Godown Name must be unique", false));
     }
 
-  
     const encryptedAddress = GodownAddress
       ? encryptData(GodownAddress)?.encryptedData
       : "";
@@ -88,7 +90,6 @@ export const createGodown = async (req, res) => {
     const encryptedPhnNo = encryptData(PhnNo)?.encryptedData;
     const encryptedGstIn = gstIn ? encryptData(gstIn)?.encryptedData : "";
 
-  
     const newGodown = await Godown.create({
       GodownType: GodownType,
       GodownName: encryptedName,
@@ -100,21 +101,16 @@ export const createGodown = async (req, res) => {
       userId: user,
     });
 
- 
-    return res
-      .status(201)
-      .json(
-        successResponse(201, "Godown created successfully", null, true, {
-          id: newGodown._id,
-        })
-      );
+    return res.status(201).json(
+      successResponse(201, "Godown created successfully", null, true, {
+        id: newGodown._id,
+      })
+    );
   } catch (error) {
     console.error("Create Godown Error:", error);
     return res.status(500).json(errorResponse(500, error.message, false));
   }
 };
-
-
 
 export const getAllGodowns = async (req, res) => {
   try {
@@ -152,8 +148,8 @@ export const getAllGodowns = async (req, res) => {
 
 export const getOurAllGodowns = async (req, res) => {
   try {
-    const user = req.user
-    const godowns = await Godown.find({userId:user}).sort({ createdAt: -1 });
+    const user = req.user;
+    const godowns = await Godown.find({ userId: user }).sort({ createdAt: -1 });
 
     const decryptedGodowns = godowns.map((g) => ({
       _id: g._id,
@@ -187,7 +183,7 @@ export const getOurAllGodowns = async (req, res) => {
 
 export const updateGodown = async (req, res) => {
   try {
-    const user = req.user
+    const user = req.user;
     const { id } = req.params;
 
     const {
@@ -200,20 +196,20 @@ export const updateGodown = async (req, res) => {
       GodownType,
     } = req.decryptedBody;
 
-
     const encryptedName = encryptData(GodownName)?.encryptedData;
 
     const existingGodown = await Godown.findOne({
       GodownName: encryptedName,
-      _id: { $ne: id }, 
-      userId:user
+      _id: { $ne: id },
+      userId: user,
     });
 
     if (existingGodown) {
-      return res.status(400).json(errorResponse( 400,"Godown Name must be unique",false) );
+      return res
+        .status(400)
+        .json(errorResponse(400, "Godown Name must be unique", false));
     }
 
-    
     const encryptedAddress = GodownAddress
       ? encryptData(GodownAddress)?.encryptedData
       : "";
@@ -223,7 +219,6 @@ export const updateGodown = async (req, res) => {
     const encryptedEmail = encryptData(emailId)?.encryptedData;
     const encryptedPhnNo = encryptData(PhnNo)?.encryptedData;
     const encryptedGstIn = gstIn ? encryptData(gstIn)?.encryptedData : "";
-
 
     const updatedGodown = await Godown.findByIdAndUpdate(
       id,
@@ -255,8 +250,6 @@ export const updateGodown = async (req, res) => {
     return res.status(500).json(errorResponse(500, error.message, false));
   }
 };
-
-
 
 // export const updateGodown = async (req, res) => {
 //   try {
@@ -314,8 +307,6 @@ export const updateGodown = async (req, res) => {
 //     return res.status(500).json(errorResponse(500, error.message || "Internal server error", false));
 //   }
 // };
-
-
 
 export const getGodownById = async (req, res) => {
   try {
@@ -381,13 +372,11 @@ export const deleteGodown = async (req, res) => {
         .json(errorResponse(404, "Godown not found", false));
     }
 
-    return res
-      .status(200)
-      .json(
-        successResponse(200, "Godown deleted successfully", null, true, {
-          id: deletedGodown._id,
-        })
-      );
+    return res.status(200).json(
+      successResponse(200, "Godown deleted successfully", null, true, {
+        id: deletedGodown._id,
+      })
+    );
   } catch (error) {
     console.error("Delete Godown Error:", error);
     return res.status(500).json(errorResponse(500, error.message, false));

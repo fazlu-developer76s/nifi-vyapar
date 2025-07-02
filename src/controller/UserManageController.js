@@ -47,9 +47,9 @@ const createUserMember = async (req, res) => {
         .json(errorResponse(400, "Invalid role or deactive", false));
     }
 
-    const encryptedName = encryptData(JSON.stringify(name))?.encryptedData;
-    const encryptedEmail = encryptData(JSON.stringify(email))?.encryptedData;
-    const encryptedMobile = encryptData(JSON.stringify(mobile))?.encryptedData;
+    const encryptedName = encryptData(name)?.encryptedData;
+    const encryptedEmail = encryptData(email)?.encryptedData;
+    const encryptedMobile = encryptData(mobile)?.encryptedData;
     const encryptedStatus = encryptData(JSON.stringify(status))?.encryptedData;
 
     const existingUserInUser = await User.findOne({ email: encryptedEmail });
@@ -233,12 +233,12 @@ const updateUserMember = async (req, res) => {
 
     // Update name if provided
     if (name) {
-      member.name = encryptData(JSON.stringify(name)).encryptedData;
+      member.name = encryptData(name).encryptedData;
     }
 
     // Update email if provided, check for duplicates
     if (email) {
-      const encryptedEmail = encryptData(JSON.stringify(email)).encryptedData;
+      const encryptedEmail = encryptData(email).encryptedData;
 
       const existingUserInUser = await User.findOne({
         email: encryptedEmail,
@@ -265,7 +265,7 @@ const updateUserMember = async (req, res) => {
 
     // Update mobile if provided
     if (mobile) {
-      member.mobile = encryptData(JSON.stringify(mobile)).encryptedData;
+      member.mobile = encryptData(mobile).encryptedData;
     }
 
     // Update status if provided and valid
@@ -423,8 +423,8 @@ const getAllUserMembers = async (req, res) => {
       const decryptedRole = member.role
         ? {
             _id: member.role._id,
-            UserRolename: JSON.parse(decryptData(member.role.UserRolename)),
-            status: JSON.parse(decryptData(member.role.status)),
+          UserRolename: decryptData(member.role.UserRolename),
+status: JSON.parse(decryptData(member.role.status)),
             createdAt: member.role.createdAt,
             updatedAt: member.role.updatedAt,
           }
@@ -432,9 +432,9 @@ const getAllUserMembers = async (req, res) => {
 
       return {
         _id: member._id,
-        name: JSON.parse(decryptData(member.name)),
-        email: JSON.parse(decryptData(member.email)),
-        mobile: JSON.parse(decryptData(member.mobile)),
+        name: (decryptData(member.name)),
+        email: (decryptData(member.email)),
+        mobile: (decryptData(member.mobile)),
         status: JSON.parse(decryptData(member.status)),
         role: decryptedRole,
         createdAt: member.createdAt,

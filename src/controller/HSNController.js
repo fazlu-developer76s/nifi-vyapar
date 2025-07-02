@@ -4,14 +4,14 @@ import { encryptData, decryptData } from '../lib/encrypt.js'; // Correcting the 
 
 export const createHSN = async (req, res) => {
   try {
-    const user = req.User
+    const user = req.user
     const { HSNcode, description, status } = req.decryptedBody;
 
     if (!HSNcode || !description) {
-      return res.status(400).json(errorResponse(400, "", "HSNcode and description are required"));
+      return res.status(400).json(errorResponse(400,  "HSNcode and description are required",false));
     }
-     const encryptedHSNcode = encryptData(HSNcode)
-    const encrypteddescription = encryptData(description)
+     const encryptedHSNcode = encryptData(HSNcode)?.encryptedData
+    const encrypteddescription = encryptData(description)?.encryptedData
     const existing = await HSN.findOne({ HSNcode:encryptedHSNcode,userId:user });
     if (existing) {
       return res.status(400).json(errorResponse(400, "", "HSNcode already exists"));
@@ -27,38 +27,30 @@ export const createHSN = async (req, res) => {
 
     await newHSN.save();
 
-    return res.status(201).json(successResponse(201, "", "HSN created successfully"));
+    return res.status(201).json(successResponse(201,  "HSN created successfully",null,true,newHSN));
   } catch (error) {
     console.error("Error in createHSN:", error.message);
-    return res.status(500).json(errorResponse(500, "", "Internal Server Error"));
+    return res.status(500).json(errorResponse(500, "Something went wrong", false));
   }
 };
 
 export const updateHSN = async (req, res) => {
   try {
-    const user = req.user
+    const user = req.user;
     const { id } = req.params;
     const { HSNcode, description, status } = req.decryptedBody;
 
-    const hsn = await HSN.findById(id);
+  const hsn = await HSN.findOne({ _id: id, userId: user });
     if (!hsn) {
-      return res.status(404).json(errorResponse(404, "", "HSN not found"));
+      return res.status(404).json(errorResponse(404, "HSN not found", false));
     }
 
-    // If HSNcode is being updated, check for duplicate (excluding current record)
     if (HSNcode) {
-      const encryptedHSNcode = encryptData(HSNcode);
-      const existing = await HSN.findOne({ HSNcode: encryptedHSNcode, _id: { $ne: id },userId:user });
-
-      if (existing) {
-        return res.status(400).json(errorResponse(400, "", "HSNcode already exists"));
-      }
-
-      hsn.HSNcode = encryptedHSNcode;
+      hsn.HSNcode = encryptData(HSNcode)?.encryptedData;
     }
 
     if (description) {
-      hsn.description = encryptData(description);
+      hsn.description = encryptData(description)?.encryptedData;
     }
 
     if (status) {
@@ -67,12 +59,17 @@ export const updateHSN = async (req, res) => {
 
     await hsn.save();
 
-    return res.status(200).json(successResponse(200, "", "HSN updated successfully"));
+    return res
+      .status(200)
+      .json(successResponse(200, "HSN updated successfully", null, true, hsn));
   } catch (error) {
     console.error("Error in updateHSN:", error.message);
-    return res.status(500).json(errorResponse(500, "", "Internal Server Error"));
+    return res
+      .status(500)
+      .json(errorResponse(500, "Something went wrong", false));
   }
 };
+
 
 export const getAllHSN = async (req, res) => {
   try {
@@ -86,10 +83,10 @@ export const getAllHSN = async (req, res) => {
       status: hsn.status,
     }));
 
-    return res.status(200).json(successResponse(200, decryptedList, "HSN list fetched successfully"));
+    return res.status(200).json(successResponse(200,  "HSN list fetched successfully",null,true,decryptedList));
   } catch (error) {
     console.error("Error in getAllHSN:", error.message);
-    return res.status(500).json(errorResponse(500, "", "Internal Server Error"));
+    return res.status(500).json(errorResponse(500,  "something went wrong",false));
   }
 };
 
@@ -99,14 +96,14 @@ export const deleteHSN = async (req, res) => {
 
     const hsn = await HSN.findById(id);
     if (!hsn) {
-      return res.status(404).json(errorResponse(404, "", "HSN not found"));
+      return res.status(404).json(errorResponse(404,  "HSN not found",false));
     }
 
     await HSN.findByIdAndDelete(id);
 
-    return res.status(200).json(successResponse(200, "", "HSN deleted successfully"));
+    return res.status(200).json(successResponse(200, "HSN deleted successfully",null,true));
   } catch (error) {
     console.error("Error in deleteHSN:", error.message);
-    return res.status(500).json(errorResponse(500, "", "Internal Server Error"));
+    return res.status(500).json(errorResponse(500,  "Something went wrong",false));
   }
 };

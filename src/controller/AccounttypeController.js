@@ -2,6 +2,7 @@ import { decryptData } from "../lib/encrypt.js";
 import { errorResponse, successResponse } from "../lib/reply.js";
 import Accounttype from "../models/Accounttype.js";
 import { AdmCompany } from "../models/userAdminCompany.js";
+// import { logAction } from "../utils/globalLogfun.js";
 
 // export const createAccountType = async (req, res) => {
 //   const user = req.user;
@@ -144,6 +145,15 @@ export const createAccountType = async (req, res) => {
       actionBy,
       userId:user, 
     });
+    //     await logAction({
+    //   endpoint: req.originalUrl,
+    //   method: req.method,
+    //   action: "CREATE",
+    //   performedBy: user,
+    //   dataAfter: newAccountType.toObject(),
+    //   message: `Created new account type '${normalizedType}' for company ${actionBy}`,
+    // });
+
 
     return res.status(201).json(
       successResponse(201, "Account type created successfully", null, true, newAccountType)
@@ -308,6 +318,8 @@ export const updateAccountType = async (req, res) => {
         .status(400)
         .json(errorResponse(400, "Missing required parameter: actionBy", false));
     }
+
+   
     const normalizedType = type.trim().toLowerCase();
 
     const duplicate = await Accounttype.findOne({
@@ -321,16 +333,19 @@ export const updateAccountType = async (req, res) => {
         errorResponse(400, "This account type already exists for the company.", false)
       );
     }
+
     const updated = await Accounttype.findOneAndUpdate(
       { _id: id, actionBy },
       { type: normalizedType },
       { new: true }
     );
+
     if (!updated) {
       return res.status(404).json(
         errorResponse(404, "Account type not found or not authorized.", false)
       );
     }
+
     return res.status(200).json(
       successResponse(200, "Account type updated successfully", null, true, updated)
     );

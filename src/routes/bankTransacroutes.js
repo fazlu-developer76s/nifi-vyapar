@@ -10,11 +10,11 @@ const bankTrans=express.Router();
 const upload = multer({ dest: 'uploads/' });
 
 bankTrans.post("/B2B",authorize,AllvalidateSchema(transactionValidation),createTransaction);
-bankTrans.get("/gettrans",authorize,getAllTransactions)
+bankTrans.get("/gettrans/:actionBy",authorize,getAllTransactions)
 
 bankTrans.get("/trans/:id",authorize,getTransactionById);
 
-bankTrans.get("/account",authorize,getAllexportTransactions)
+bankTrans.get("/account/:actionBy",authorize,getAllexportTransactions)
 
 bankTrans.post('/upload-transaction-file', upload.single('file'), uploadTransactionFile);
 

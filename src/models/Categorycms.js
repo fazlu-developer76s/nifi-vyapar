@@ -3,103 +3,103 @@ import { faqBlockSchema } from "./faqModel.js";
 import { footerSchema } from "./FooterModel.js";
 import { testimonialSchema } from "./testimonials.js";
 
+export const categorySchema = new Schema(
+  {
+    category: {
+      type: String,
+      required: true,
+      enum: [
+        "hero",
+        "about",
+        "solutions",
+        "product-overview",
+        "benefit-of-product",
+        "targeted-segment",
+        "faqs",
+        "testimonial",
+        "footer",
+      ],
+      //  unique: true
+    },
 
-export const categorySchema = new Schema({
-  category: {
-    type: String,
-    required: true,
-    enum: [
-      "hero",
-      "about",
-      "solutions",
-      "product-overview",
-      "benefit-of-product",
-      "targeted-segment",
-      "faqs",
-      "testimonial",
-      "footer"
-    ],
-    //  unique: true
+    type: {
+      type: String,
+      enum: ["slider", "card"],
+      // required: true
+    },
+
+    imageLocation: {
+      type: Number,
+      enum: [1, 2, 3], // 1: image only, 2: image left/text right, 3: image right/text left
+      default: 1,
+    },
+
+    image: {
+      type: String,
+      default: null,
+    },
+
+    h1: {
+      type: String,
+      default: "",
+    },
+
+    description: {
+      type: String,
+      default: "",
+    },
+
+    h1Color: {
+      type: String,
+      default: "",
+    },
+
+    descriptionColor: {
+      type: String,
+      default: "",
+    },
+
+    h1FontFamily: {
+      type: String,
+      default: "",
+    },
+
+    descriptionFontFamily: {
+      type: String,
+      default: "",
+    },
+
+    buttonColor: {
+      type: String,
+      default: "",
+    },
+
+    buttonText: {
+      type: String,
+      default: "",
+    },
+
+    buttonUrl: {
+      type: String,
+      default: "",
+    },
+    faqs: { type: String },
+    footer: { type: String },
+    testimonials: { type: String },
+
+    logo: {
+      type: String,
+      default: null,
+    },
+    status: {
+      type: Boolean,
+      default: true,
+    },
   },
-
-  type: {
-    type: String,
-    enum: ["slider", "card"],
-    // required: true
-  },
-
-  imageLocation: {
-    type: Number,
-    enum: [1, 2, 3], // 1: image only, 2: image left/text right, 3: image right/text left
-    default: 1
-  },
-
-  image: {
-    type: String,
-    default: null
-  },
-
-  h1: {
-    type: String,
-    default: ""
-  },
-
-  description: {
-    type: String,
-    default: ""
-  },
-
-  h1Color: {
-    type: String,
-    default: ""
-  },
-
-  descriptionColor: {
-    type: String,
-    default: ""
-  },
-
-  h1FontFamily: {
-    type: String,
-    default: ""
-  },
-
-  descriptionFontFamily: {
-    type: String,
-    default: ""
-  },
-
-  buttonColor: {
-    type: String,
-    default: ""
-  },
-
-  buttonText: {
-    type: String,
-    default: ""
-  },
-
-  buttonUrl: {
-    type: String,
-    default: ""
-  },
-  faqs: {type:String},
-  footer:{type:String},
-  testimonials:{type:String},
-
-   logo: {
-    type: String,
-    default: null
-  },
-  status: {
-    type: Boolean,
-    default: true
-  },
-
-}, {
-  timestamps: true
-});
-
+  {
+    timestamps: true,
+  }
+);
 
 // export const getUserBrandConfig = async (req, res) => {
 //   const { page } = req.params;

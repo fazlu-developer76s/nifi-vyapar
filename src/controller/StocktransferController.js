@@ -13,7 +13,10 @@ export const createStock = async (req, res) => {
         From,
         To,
         ItemName,
-        QuantityTotransfer
+        QuantityTotransfer,
+        ImeiNo,
+        qualitystatus,
+
       } = req.decryptedBody;
   
       const newStock = await Stocktransfer.create({
@@ -22,6 +25,7 @@ export const createStock = async (req, res) => {
         To,
         ItemName,
         QuantityTotransfer,
+        
         userId:user
       });
   
