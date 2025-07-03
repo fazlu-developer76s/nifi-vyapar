@@ -77,10 +77,13 @@ export const updateAdmCompany = async (req, res) => {
     }
 
   const exitcompany = await AdmCompany.findOne({
-      Companyemail: encryptedEmail,
+      Companyemail: encryptData(Companyemail)?.encryptedData,
       _id: { $ne: id },
-      userId:  req.user ,
+      userId: req.user
     });
+
+  
+
     if (exitcompany) {
       return res
         .status(400)
