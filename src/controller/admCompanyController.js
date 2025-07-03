@@ -6,13 +6,8 @@ import { Usermember } from "../models/Usermanagement.js";
 
 export const createAdmCompany = async (req, res) => {
   try {
+
     const user = req.user;
-    console.log(user);
-
-    // const { body } = req.body;
-
-    // const decryptedBody = decryptData(body);
-    // const parsedBody = JSON.parse(decryptedBody);
     const { CompanyName, CompanyMobile, Companyemail, address, gstIn, status } =
       req.decryptedBody;
 
@@ -21,7 +16,6 @@ export const createAdmCompany = async (req, res) => {
         .status(400)
         .json(errorResponse(400, "Missing required fields", false));
     }
-
     const encryptedName = encryptData(CompanyName)?.encryptedData;
     const encryptedMobile = encryptData(CompanyMobile)?.encryptedData;
     const encryptedEmail = encryptData(Companyemail)?.encryptedData;
@@ -30,22 +24,20 @@ export const createAdmCompany = async (req, res) => {
     const encryptedStatus = encryptData(
       String(status || "true")
     )?.encryptedData;
-
     const existUser = await User.findById(user);
     if (!existUser) {
       return res.status(404).json(errorResponse(404, "User not found", false));
     }
-
     const existingCompany = await AdmCompany.findOne({
-      Companyemail: encryptedEmail,
-      userID:  user ,
+      Companyemail:encryptedEmail,
+      userId:user 
     });
+
     if (existingCompany) {
       return res
         .status(400)
         .json(errorResponse(400, "Company email already exists", false));
     }
-
     const newCompany = new AdmCompany({
       CompanyName: encryptedName,
       CompanyMobile: encryptedMobile,
@@ -55,14 +47,11 @@ export const createAdmCompany = async (req, res) => {
       gstIn: encryptedGstIn,
       userId: user,
     });
-
     await newCompany.save();
-
     existUser.companyDetails = {
       company_Id: newCompany._id,
     };
     await existUser.save();
-
     return res
       .status(201)
       .json(successResponse(201, "Company created successfully", "", true, ""));
@@ -90,7 +79,7 @@ export const updateAdmCompany = async (req, res) => {
   const exitcompany = await AdmCompany.findOne({
       Companyemail: encryptedEmail,
       _id: { $ne: id },
-      userID:  user ,
+      userId:  req.user ,
     });
     if (exitcompany) {
       return res
