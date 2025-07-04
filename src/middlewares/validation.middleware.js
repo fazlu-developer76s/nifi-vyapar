@@ -10,7 +10,7 @@ const validationCheck = (schema) => async (req, res, next) => {
     const errorDetails = error.details.map((detail) => ({
       message: detail.message,
       path: detail.path,
-      type: detail.type,
+      // type: detail.type,
     }));
     return errorResponse(
       res,

@@ -20,6 +20,7 @@
   "homepage": "https://github.com/fazlu-developer76s/nifi-doc#readme",
   "description": "",
   "dependencies": {
+    "axios": "^1.10.0",
     "body-parser": "^2.2.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
@@ -29,6 +30,7 @@
     "google-auth-library": "^9.15.1",
     "joi": "^17.13.3",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.15.1"
+    "mongoose": "^8.15.1",
+    "nodemailer": "^7.0.4"
   }
 }
