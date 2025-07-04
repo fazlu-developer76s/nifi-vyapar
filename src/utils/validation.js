@@ -12,6 +12,17 @@ const sendLoginOtp = joi.object({
     }),
 });
 
+const roleValidation = joi.object({
+    role: joi.string().required().messages({
+        'string.empty': 'Role is required'
+    }),
+    status: joi.string().required().messages({
+        'string.empty': 'Role status is required'
+    })
+});
+
 export{
-    loginValidation,sendLoginOtp
+    loginValidation,
+    roleValidation,
+    sendLoginOtp
 }

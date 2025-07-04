@@ -6,15 +6,30 @@ import cookieParser from "cookie-parser";
 import { connectDB } from "./db/dbConfig.js";
 import authRouter from "./routes/auth.routes.js";
 import { encryp, decryp } from "./utils/cryptoHelper.js";
+import roleRouter from "./routes/role.route.js";
+import Role from "./models/roleModel.js";
 const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 connectDB();
-app.get("/", (req, res) => {
-  res.send("Welcome to the API");
+try {
+  const findAdminRole = await Role.findOne({ role: "admin" });
+  if(!findAdminRole) {
+    await Role.create({
+      role: "admin",
+      status: "active",  // ✅ use boolean, not "active"
+    });
+    console.log("Role created");
+  }
+} catch (err) {
+  console.error("Error creating role:", err);
+}
+app.get("/", async (req, res) => {
+    res.send("hello welcome to nifi vyapar api");
 });
+
 
 app.post("/api/encrypt", (req, res) => {
   const encryptedData = encryp(req.body);
@@ -33,6 +48,6 @@ app.post("/api/decrypt", (req, res) => {
     res.status(500).json({ error: "Decryption failed" });
   }
 });
-
+app.use("/api/role", roleRouter);
 app.use("/api/auth", authRouter);
 export default app;
