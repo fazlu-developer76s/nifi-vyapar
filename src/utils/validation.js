@@ -11,6 +11,16 @@ import joi from 'joi';
     // }),
 });
 
+const roleValidation = joi.object({
+    role: joi.string().required().messages({
+        'string.empty': 'Role is required'
+    }),
+    status: joi.string().required().messages({
+        'string.empty': 'Role status is required'
+    })
+});
+
 export{
-    loginValidation
+    loginValidation,
+    roleValidation
 }
