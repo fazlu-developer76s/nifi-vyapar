@@ -7,7 +7,7 @@ import { connectDB } from "./db/dbConfig.js";
 import authRouter from "./routes/auth.routes.js";
 import { encryp, decryp } from "./utils/cryptoHelper.js";
 import roleRouter from "./routes/role.route.js";
-import Role from "./models/roleModel.js";
+import { Role } from "./models/role.model.js";
 const app = express();
 app.use(cors());
 app.use(express.json());

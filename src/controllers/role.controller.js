@@ -1,85 +1,64 @@
+import { Role } from "../models/role.model.js";
+import { errorResponse, successResponse } from "../utils/response.js";
 
-import Role from "../models/roleModel.js";
 export const createRole = async (req, res) => {
-    try {
-      const { role } = req.body;
-  
-      if (!role) {
-        return res.status(400).json({ error: "Role is required." });
-      }
-  
-      const existingRole = await Role.findOne({ role });
-      if (existingRole) {
-        return res.status(400).json({ error: "Role already exists." });
-      }
-  
-      const saveRole = await Role.create({ role });
-  
-      return res.status(201).json({
-        message: "Role created successfully",
-        data: saveRole
-      });
-    } catch (err) {
-      res.status(400).json({ error: err.message });
+  try {
+    const { role } = req.body;
+    const existingRole = await Role.findOne({ role:role , userID:req.user.id });
+    if (existingRole) {
+      errorResponse(res, "Role already exists", 400);
     }
-  };
-  
-  
-    
+    const saveRole = await Role.create({ role: role, userID: req.user.id });
+    successResponse(res, "Role created successfully", saveRole, 201);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
 
 export const getRoles = async (req, res) => {
-    try {
-        const roles = await Role.find();
-        res.status(200).json({
-            message: "Roles fetched successfully",
-            data: roles
-        });
-    } catch (error) {
-        res.status(500).json({
-            message: "Internal server error",
-            error: error.message
-        });
-    }
+  try {
+    const roles = await Role.find({ userID: req.user.id });
+    successResponse(res, "Roles fetched successfully", roles, 200);
+  } catch (error) {
+    errorResponse(res, "Error fetching roles", 500, error.message);
+  }
 };
 
 export const updateRole = async (req, res) => {
-    try {
-      const { id } = req.params;
-      const roleDoc = await Role.findByIdAndUpdate(id);
-      if (!roleDoc) {
-        return res.status(404).json({ message: "Role not found." });
-      }
-    //   check role already exist
-     const check_role = await Role.findOne({ role: req.body.role, _id : { $ne: id } });
-     if(check_role) {
-        return res.status(400).json({ message: "Role already exists." });
-      }
-      if(req.body.status){
-        roleDoc.status = req.body.status;
-      }
-      if(req.body.role){
-        roleDoc.role = req.body.role;
-      }
-      await roleDoc.save();
-  
-      return res.status(200).json({ message: `Role update successfully` });
-    } catch (err) {
-      res.status(400).json({ error: err.message });
+  try {
+    const { id } = req.params;
+    const roleDoc = await Role.findByIdAndUpdate(id);
+    if (!roleDoc) {
+      return errorResponse(res, "Role not found", 404);
     }
-  };
-  
-  
-  
-  
-
-export const deleteRole = async (req, res) => {
-    try {
-        const deleted = await Role.findByIdAndDelete(req.params.id);
-        if (!deleted) return res.status(404).json({ message: "Role not found." });
-        res.status(200).json({ message: "Role deleted." });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
+    const check_role = await Role.findOne({
+      role: req.body.role,
+      _id: { $ne: id },
+    });
+    if (check_role) {
+      errorResponse(res, "Role already exists", 400);
     }
+    if (req.body.status) {
+      roleDoc.status = req.body.status;
+    }
+    if (req.body.role) {
+      roleDoc.role = req.body.role;
+    }
+    await roleDoc.save();
+    successResponse(res, "Role updated successfully", roleDoc, 200);
+  } catch (err) {
+    errorResponse(res, "Error updating role", 500, err.message);
+  }
 };
 
-
+export const deleteRole = async (req, res) => {
+  try {
+    const deleted = await Role.findByIdAndDelete(req.params.id);
+    if (!deleted) {
+      errorResponse(res, "Role not found", 404);
+    }
+    successResponse(res, "Role deleted successfully", deleted, 200);
+  } catch (err) {
+    errorResponse(res, "Error deleting role", 500, err.message);
+  }
+};
