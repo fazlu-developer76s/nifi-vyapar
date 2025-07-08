@@ -21,8 +21,18 @@ export const signinWithgoogle = async (req, res) => {
     });
     const payload = ticket.getPayload();
     const { sub, email, name, picture } = payload;
-    const findUser = await User.findOne({ email: email });
-
+    let findUser = await User.findOne({ email: email });
+    const getAdminRole = await Role.findOne({ role: "admin" });
+    if (!findUser) {
+      const newUser = new User({
+        email: email,
+        name: name,
+        picture: picture,
+        role: getAdminRole._id,
+      });
+      await newUser.save();
+    }
+    findUser = await User.findOne({ email: email });
     if (findUser) {
       const expireAlltoken = await Token.updateMany(
         { userID: findUser._id },
@@ -48,12 +58,15 @@ export const signinWithgoogle = async (req, res) => {
           { user, token: getToken },
           200
         );
+        return;
       }
     } else {
       errorResponse(res, "Invalid credentials", 401);
+      return;
     }
   } catch (error) {
     errorResponse(res, "Invalid credentials", 401);
+    return;
   }
 };
 
@@ -92,6 +105,7 @@ export const signInFunction = async (req, res) => {
     const getAdminRole = await Role.findOne({ role: "admin" });
     if (!getAdminRole) {
       errorResponse(res, "Admin role not found", 500);
+      return;
     }
     if (!findUser) {
       const newUser = new User({
@@ -128,11 +142,14 @@ export const signInFunction = async (req, res) => {
         { user, token: getToken },
         200
       );
+      return;
     } else {
       errorResponse(res, "Invalid credentials", 401);
+      return;
     }
   } catch (error) {
     errorResponse(res, "Sign-in failed", 500);
+    return;
   }
 };
 
@@ -172,7 +189,9 @@ export const sendOtp = async (req, res) => {
       return errorResponse(res, "Invalid login key format", 400);
     }
     successResponse(res, "OTP sent successfully", login_key, 200);
+    return;
   } catch (error) {
     errorResponse(res, "Failed to send OTP", 500);
+    return;
   }
 };
