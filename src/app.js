@@ -8,6 +8,7 @@ import authRouter from "./routes/auth.routes.js";
 import { encryp, decryp } from "./utils/cryptoHelper.js";
 import roleRouter from "./routes/role.route.js";
 import { Role } from "./models/role.model.js";
+import categoryRouter from "./routes/category.route.js";
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -48,6 +49,7 @@ app.post("/api/decrypt", (req, res) => {
     res.status(500).json({ error: "Decryption failed" });
   }
 });
-app.use("/api/role", roleRouter);
 app.use("/api/auth", authRouter);
+app.use("/api/role", roleRouter);
+app.use("/api/category", categoryRouter);
 export default app;

@@ -32,10 +32,19 @@ const roleValidation = joi.object({
         'string.empty': 'Role status is required'
     })
 });
+const categoryValidation = joi.object({
+    category_name: joi.string().required().messages({
+        'string.empty': 'Category is required'
+    }),
+    status: joi.string().required().messages({
+        'string.empty': 'Category status is required'
+    })
+});
 
 export{
     loginValidation,
     roleValidation,
     sendLoginOtp,
-    signInValidation
+    signInValidation,
+    categoryValidation
 }
