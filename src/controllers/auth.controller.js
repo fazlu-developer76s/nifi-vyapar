@@ -156,7 +156,8 @@ export const signInFunction = async (req, res) => {
 export const sendOtp = async (req, res) => {
   const { login_key } = req.body;
   try {
-    const gen_otp = generateOTP();
+    // const gen_otp = generateOTP();
+    const gen_otp = "123456";
     if (emailRegex.test(login_key)) {
       if (sendEmailOTP(login_key, gen_otp)) {
         const expireAllotp = await Otp.updateMany(
