@@ -21,8 +21,15 @@ export const createRole = async (req, res) => {
 
 export const getRoles = async (req, res) => {
   try {
-    const roles = await Role.find({ userID: req.user.id });
-    successResponse(res, "Roles fetched successfully", roles, 200);
+    const roles = await Role.find({ userID: req.user.id }).select("-__v -createdAt -updatedAt");
+    const decryptedData = roles.map((role) => ({
+      _id: role._id,
+      role: role.role,
+      status: role.status,
+      createdAt: role.createdAt,
+      updatedAt: role.updatedAt,
+    }));
+    successResponse(res, "Roles fetched successfully", decryptedData, 200);
     return;
   } catch (error) {
     errorResponse(res, "Error fetching roles", 500, error.message);
