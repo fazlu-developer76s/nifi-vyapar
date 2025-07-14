@@ -1,5 +1,6 @@
 import { Category } from "../models/category.model.js";
 import { errorResponse, successResponse } from "../utils/response.js";
+import { decryp } from "../utils/cryptoHelper.js";
 
 export const createCategory = async (req, res) => {
   try {
@@ -20,13 +21,13 @@ export const createCategory = async (req, res) => {
 };
 
 export const getCategorys = async (req, res) => {
+
   try {
-    const category_names = await Category.find({ userID: req.user.id });
-    const decryptedCategoryNames = category_names.map(category => ({
-      ...category.toObject(),
-      category_name: category.category_name_decrypted // Use the virtual field for decrypted name
-    }));
-    successResponse(res, "Categorys fetched successfully", decryptedCategoryNames, 200);
+  const category_names = await Category.find({ userID: req.user.id });
+  const decryptedData = category_names.map((category) => {
+    return decryp(category);  
+  });
+  successResponse(res, "Categories fetched successfully", decryptedData, 200);
     return;
   } catch (error) {
     errorResponse(res, "Error fetching category_names", 500, error.message);
