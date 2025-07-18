@@ -2,7 +2,7 @@ import { decryp, encryp } from "../utils/cryptoHelper.js";
 import { errorResponse } from "../utils/response.js";
 
 const validationCheck = (schema) => async (req, res, next) => {
-  const decrypt = decryp(req.body.body);
+  const decrypt = decryp(req.body?.body);
   req.body = decrypt;
   const { error } = schema.validate(req.body, { abortEarly: false });
 

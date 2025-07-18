@@ -41,10 +41,34 @@ const categoryValidation = joi.object({
     })
 });
 
+const companyValidation = joi.object({
+  CompanyName: joi.string().required().messages({
+    'string.empty': 'Company name is required',
+  }),
+  CompanyMobile: joi.string().pattern(/^\d{10}$/).required().messages({
+    'string.empty': 'Mobile number must be 10 digits',
+  }),
+  Companyemail: joi.string().email().required().messages({
+    'string.empty': 'Email must be a valid email address',
+  }),
+  address: joi.string().required().messages({
+    'string.empty': 'Address is required',
+  }),
+  gstIn: joi.string().max(15).allow('', null).messages({
+    'string.max': 'GSTIN must be at most 15 characters',
+  }),
+  status: joi.string().valid("active", "inactive").optional().messages({
+    'any.only': 'Status must be either "active" or "nactive"',
+  }),
+});
+
+
 export{
     loginValidation,
     roleValidation,
     sendLoginOtp,
     signInValidation,
-    categoryValidation
+    categoryValidation,
+    companyValidation
+ 
 }

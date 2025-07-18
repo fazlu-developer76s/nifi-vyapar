@@ -9,6 +9,7 @@ import { encryp, decryp } from "./utils/cryptoHelper.js";
 import roleRouter from "./routes/role.route.js";
 import { Role } from "./models/role.model.js";
 import categoryRouter from "./routes/category.route.js";
+import companiesRouter from "./routes/company.route.js";
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -52,4 +53,5 @@ app.post("/api/decrypt", (req, res) => {
 app.use("/api/auth", authRouter);
 app.use("/api/role", roleRouter);
 app.use("/api/category", categoryRouter);
+app.use("/api/company",companiesRouter)
 export default app;

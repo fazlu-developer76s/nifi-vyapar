@@ -13,8 +13,9 @@ export const verifyToken = async (req, res, next) => {
   // }
 
   // 2. Extract token from header
-  const token = authHeader.split(" ")[1];
+   const token = authHeader.split(" ")[1];
  
+  //  console.log(authHeader,"header")
   try {
     // 3. Decode and verify JWT
     const decoded = jwt.verify(authHeader, JWT_SECRET);
